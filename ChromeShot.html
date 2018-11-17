@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <style>
+table, td {
+    border: 1px solid black;
+}
+</style>
+  <title>ChromeWitness</title>
+  <body>
+<table id="myTable"></table>
+  </body>
+</iframe>
+<script>
+var urls = [
+"http://www.hp.com", 
+"http://www.rackspace.com",
+"http://www.amazon.com",
+"http://www.usbank.com",
+"http://www.google.com",
+"http://www.abc.com",
+"http://www.nbc.com",
+"http://www.microsoft.com",
+"http://www.office.com",
+"http://www.outlook.com",
+"http://www.walmart.com"
+];
+
+var webSocketDebuggerUrl;
+var port = 9222;
+var result;
+var targetID;
+var index = 0;
+var batchSize = 5;
+var sleepMS = 4000;
+var connection;
+
+var request = new XMLHttpRequest();
+request.open("GET", "http://localhost:" + port + "/json");
+request.responseType = 'json';
+request.send();
+request.onload = function() {
+	webSocketDebuggerUrl = request.response[0].webSocketDebuggerUrl;
+ 
+	connection = new WebSocket(webSocketDebuggerUrl);
+
+	// When the connection is open, send some data to the server
+	connection.onopen = function () {
+		startAnother();
+
+	};
+	
+	// Log errors
+	connection.onerror = function (error) {
+	  console.log('WebSocket Error ' + error);
+	};
+	
+	// Log messages from the server
+	connection.onmessage = function (e) {
+		
+		//find the targetID
+		var respJ = JSON.parse(e.data);
+		if (respJ.result.targetId != undefined){
+			targetID = respJ.result.targetId;
+			getScreenshot(targetID, respJ.id)//.then(() => {connections[0].send('{"id": 4, "method": "Page.bringToFront"}'); startAnother()});	
+		    		
+		}
+	};	
+}
+
+function startAnother () {
+var id = +index + +1000;
+							var cs = '{"id": ' + id + ', "method": "Target.createTarget", "params": {"url": "' + urls[index] + '"}}'
+				index = index + 1;
+				if ( index - 1 < urls.length) {
+					console.log("starting another: " + cs);
+					connection.send(cs);
+				}
+}
+
+function getScreenshot (targetID, requestID) {
+ //return new Promise(function(resolve, reject) {
+
+	var connection2 = new WebSocket("ws://localhost:9222/devtools/page/" + targetID);
+
+
+	var title;
+	var url;
+	
+
+
+	// Log errors
+	connection2.onerror = function (error) {
+		console.log('WebSocket Error ' + error);
+	};
+	
+	// Log messages from the server
+	connection2.onmessage = function (e) {
+
+		if (e.data != undefined) {
+			resultJ = JSON.parse(e.data);
+
+			if ((resultJ.id != undefined) && (resultJ.id == 3)) {
+				try {
+					title = resultJ.result.targetInfo.title;
+				}
+				catch(err) {
+					console.log(err.message);
+				}
+				try {
+					url = resultJ.result.targetInfo.url;
+				}
+				catch(err) {
+					console.log(err.message);
+				}
+			}
+
+			if ((resultJ.id != undefined) && (resultJ.id == 2) && (JSON.stringify(resultJ.result) != "{}")) {
+				var blobstr = ('<img src="data:image/png;base64, ' + resultJ.result.data + '"/>');
+
+				var table = document.getElementById("myTable");
+				var row = table.insertRow(-1);
+				var cell1 = row.insertCell(0);
+				var cell2 = row.insertCell(1);
+				a = document.createElement('a');
+				a.href =  url;
+				a.innerHTML = url;
+				a.setAttribute('target', '_blank');
+				var para = document.createElement("p");
+				var node = document.createTextNode(title);
+				para.appendChild(node);
+				cell1.appendChild(para);
+				cell1.appendChild(a);
+				cell2.innerHTML = blobstr;
+				
+				
+				//close the tab
+				var constr = '{"id": ' + requestID + ', "method": "Page.close"}'; 
+				console.log("closing: " + constr);
+				connection2.send(constr);
+				startAnother();
+				connection2.close();
+				//resolve("it worked");
+			}
+		}
+	};
+	
+	
+	
+	//When the connection is open, send some data to the server
+	connection2.onopen = function () {
+		//Don't do anything right away because we need to wait for the page to load
+		sleep(sleepMS).then(() => {
+			connection2.send('{"id": 3, "method": "Target.getTargetInfo", "params": {"targetId": "' + targetID + '"}}');
+			connection2.send('{"id": 2, "method": "Page.captureScreenshot"}');
+
+			
+		});
+	};
+ // });
+}
+
+// sleep time expects milliseconds
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+
+
+
+</script>
+  
+  
+  </body></html>
