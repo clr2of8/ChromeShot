@@ -6,20 +6,20 @@ This caputures screenshots of webpages using Chrome. You place your list of URLs
 
 ### 64 Bit
 
-```"%PROGRAMFILES(X86)%\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --disable-web-security --user-data-dir="%localAppData%/Google/Chrome/User Data" --disable-plugins file:///C:/Full/Path/To/ChromeShot.html```
+```"%PROGRAMFILES(X86)%\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --disable-web-security --ignore-certificate-errors --user-data-dir="%localAppData%/Google/Chrome/User Data" --disable-plugins file:///C:/Full/Path/To/ChromeShot.html```
 
 ### 32 Bit
 
-```"%PROGRAMFILES%\Google\Chrome\Application\chrome.exe"  --remote-debugging-port=9222 --disable-web-security --user-data-dir="%localAppData%/Google/Chrome/User Data" --disable-plugins file:///C:/Full/Path/To/ChromeShot.html```
+```"%PROGRAMFILES%\Google\Chrome\Application\chrome.exe"  --remote-debugging-port=9222 --disable-web-security --ignore-certificate-errors --user-data-dir="%localAppData%/Google/Chrome/User Data" --disable-plugins file:///C:/Full/Path/To/ChromeShot.html```
 
 ## Windows 7
 
-```"%localAppData%\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --disable-web-security --user-data-dir="%localAppData%/Google/Chrome/User Data" --disable-plugins file:///C:/Full/Path/To/ChromeShot.html```
+```"%localAppData%\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --disable-web-security --ignore-certificate-errors --user-data-dir="%localAppData%/Google/Chrome/User Data" --disable-plugins file:///C:/Full/Path/To/ChromeShot.html```
 
 # OS X
 
-```"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"  --remote-debugging-port=9222 --disable-web-security --user-data-dir="$HOME/Library/Application Support/Google/Chrome" --disable-plugins https://www.google.com/```
+```"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"  --remote-debugging-port=9222 --disable-web-security --ignore-certificate-errors --user-data-dir="$HOME/Library/Application Support/Google/Chrome" --disable-plugins https://www.google.com/```
 
 # Linux
 
-```google-chrome --remote-debugging-port=9222 --disable-web-security --user-data-dir="~/.config/google-chrome/default" --disable-plugins https://www.google.com```
+```google-chrome --remote-debugging-port=9222 --disable-web-security --ignore-certificate-errors --user-data-dir="~/.config/google-chrome/default" --disable-plugins https://www.google.com```
